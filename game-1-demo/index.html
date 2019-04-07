@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0" />
+    <title>游戏1</title>
+    <script src="index.js"></script>
+</head>
+<style>
+    html,body{
+        height: 100%;
+        width: 100%;
+    }
+    * {
+        margin: 0;
+        padding: 0;
+    }
+
+    #game-div {
+        border: aqua 1px solid;
+        /*margin: 50px;*/
+        //float: left;
+    }
+</style>
+<body>
+<div id="game-div" class="">
+
+
+</div>
+<span id="span">123</span>
+</body>
+<script>
+    (function () {
+        var gameDiv = document.getElementById('game-div');
+        var canvas = document.createElement('canvas');
+        gameDiv.appendChild(canvas);
+        var ctx = canvas.getContext('2d');
+        canvas.width = document.body.offsetWidth -2;
+        canvas.height = document.body.offsetHeight -50;
+
+        var imgButton;
+        var imgTimetLiat = [];
+        var imgClickNumberList = [];
+        var clickNumber;
+        var audioList=[];
+
+
+        var CanvasImg = function (imgPath) {
+
+            var thisObj = this;
+            this.img = new Image();
+            this.sx = 0;
+            this.sy = 0;
+            this.swidth;
+            this.sheight;
+            this.x = 0;
+            this.y = 0;
+            this.width;
+            this.height;
+            this.enabled = false;
+            var isOver = false;
+
+            this.onclick;	//单击，当用户点击某个对象时调用的事件句柄。
+            // oncontextmenu	//在用户点击鼠标右键打开上下文菜单时触发
+            // ondblclick	//当用户双击某个对象时调用的事件句柄。
+            this.onmousedown;	//鼠标按钮被按下。鼠标上的按钮被按下了
+            this.onmouseup;	//鼠标按键被松开。鼠标按下后，松开时激发的事件
+            // onmouseenter	//当鼠标指针移动到元素上时触发。
+            // onmouseleave	//当鼠标指针移出元素时触发
+            this.onmousemove;	//鼠标被移动。鼠标移动时触发的事件
+            this.onmouseover;//鼠标移入
+            this.onmouseout;//鼠标移出
+            this.onload;
+            this.img.onload = function () {
+                thisObj.swidth = thisObj.img.width;
+                thisObj.sheight = thisObj.img.height;
+                thisObj.width = thisObj.img.width;
+                thisObj.height = thisObj.img.height;
+                if (thisObj.onload && typeof thisObj.onload === "function")
+                    thisObj.onload(thisObj)
+            }
+            this.show = function () {
+                thisObj.enabled = true;
+                xyzsDrawImage(thisObj);
+            }
+
+
+            /**
+             * 是否范围内
+             * @param x
+             * @param y
+             * @returns {boolean}
+             */
+            function isRange(x, y) {
+                return x > thisObj.x && x < thisObj.width + thisObj.x && y > thisObj.y && y < thisObj.height + thisObj.y
+            }
+
+            canvasClick = function (event) {
+                var e = event || window.event;
+                if (thisObj.enabled && isRange(e.layerX, e.layerY) && thisObj.onclick && typeof thisObj.onclick === "function") {
+                    thisObj.onclick(thisObj, e);
+                }
+            };
+            canvasMouseDown = function (event) {
+                var e = event || window.event;
+                if (thisObj.enabled && isRange(e.layerX, e.layerY) && thisObj.onmousedown && typeof thisObj.onmousedown === "function") {
+                    thisObj.onmousedown(thisObj, e);
+                }
+            };
+            canvasMouseUp = function (event) {
+                var e = event || window.event;
+                if (thisObj.enabled && isRange(e.layerX, e.layerY) && thisObj.onmouseup && typeof thisObj.onmouseup === "function") {
+                    thisObj.onmouseup(thisObj, e);
+                }
+            };
+            canvasMouseMove = function (event) {
+                var e = event || window.event;
+                if (isRange(e.layerX, e.layerY)) {
+                    if (!isOver) {
+                        if (thisObj.enabled && thisObj.onmouseover && typeof thisObj.onmouseover === "function")
+                            thisObj.onmouseover(thisObj, e);
+                        isOver = true;
+                    }
+                    if (thisObj.enabled && thisObj.onmousemove && typeof thisObj.onmousemove === "function")
+                        thisObj.onmousemove(thisObj, e);
+                }
+                else {
+                    if (isOver) {
+                        if (thisObj.enabled && thisObj.onmouseout && typeof thisObj.onmouseout === "function")
+                            thisObj.onmouseout(thisObj, e);
+                        isOver = false;
+                    }
+                }
+            };
+
+
+            canvas.addEventListener('click', canvasClick);
+            canvas.addEventListener('mousemove', canvasMouseMove);
+            //canvas.addEventListener('mouseover', canvasMouseOver);
+            canvas.addEventListener('mousedown', canvasMouseDown);
+            //canvas.addEventListener('mouseout', canvasMouseOut);
+            canvas.addEventListener('mouseup', canvasMouseUp);
+
+            this.img.src = imgPath;
+        };
+
+        function xyzsDrawImage(CanvasImg) {
+            // img	规定要使用的图像、画布或视频。
+            // sx	可选。开始剪切的 x 坐标位置。
+            // sy	可选。开始剪切的 y 坐标位置。
+            // swidth	可选。被剪切图像的宽度。
+            // sheight	可选。被剪切图像的高度。
+            // x	在画布上放置图像的 x 坐标位置。
+            // y	在画布上放置图像的 y 坐标位置。
+            // width	可选。要使用的图像的宽度（伸展或缩小图像）。
+            // height	可选。要使用的图像的高度（伸展或缩小图像）。
+            ctx.drawImage(CanvasImg.img, CanvasImg.sx, CanvasImg.sy, CanvasImg.swidth, CanvasImg.sheight, CanvasImg.x, CanvasImg.y, CanvasImg.width, CanvasImg.height);
+        }
+
+        var bg = new CanvasImg('img/img1.jpg');
+        bg.onload = function () {
+            bg.width = canvas.width;
+            bg.height = canvas.height;
+            bg.onclick = function (t,e) {
+                window.event? window.event.cancelBubble = true : e.stopPropagation();
+                if (state === 1) {
+                    var audio = document.getElementsByTagName('audio');
+                    for (var i = 0; i < audio.length; i++) {
+                        if (audio[i].paused || audio[i].ended) {
+                            audio[i].play();
+                            break;
+                        }
+                    }
+                    clickNumber++;
+                    var clickNumberStr = clickNumber.toString();
+                    imgClickNumberList.length = clickNumberStr.length;
+                    var numberW = 12, numberH = 25;
+                    for (let i = 0; i < clickNumberStr.length; i++) {
+                        let imgx;
+
+                        switch (clickNumberStr[i]) {
+                            case "0":
+                                imgx = new CanvasImg('img/score.png');
+                                imgx.onload = function (imgThis) {
+                                    imgThis.sx = 0;
+                                    imgThis.sy = 0;
+                                    imgThis.swidth = 32;
+                                    imgThis.sheight = 62;
+                                    imgThis.x = canvas.width - 15 * (clickNumberStr.length - i);
+                                    imgThis.y = 0;
+                                    imgThis.width = numberW;
+                                    imgThis.height = numberH;
+                                    imgThis.show();
+                                };
+                                break;
+                            case "1":
+                                imgx = new CanvasImg('img/score.png');
+                                imgx.onload = function (imgThis) {
+                                    imgThis.sx = 32;
+                                    imgThis.sy = 0;
+                                    imgThis.swidth = 32;
+                                    imgThis.sheight = 62;
+                                    imgThis.x = canvas.width - 15 * (clickNumberStr.length - i);
+                                    imgThis.y = 0;
+                                    imgThis.width = numberW;
+                                    imgThis.height = numberH;
+                                    imgThis.show();
+                                };
+                                break;
+                            case "2":
+                                imgx = new CanvasImg('img/score.png');
+                                imgx.onload = function (imgThis) {
+                                    imgThis.sx = 64;
+                                    imgThis.sy = 0;
+                                    imgThis.swidth = 32;
+                                    imgThis.sheight = 62;
+                                    imgThis.x = canvas.width - 15 * (clickNumberStr.length - i);
+                                    imgThis.y = 0;
+                                    imgThis.width = numberW;
+                                    imgThis.height = numberH;
+                                    imgThis.show();
+                                };
+                                break;
+                            case "3":
+                                imgx = new CanvasImg('img/score.png');
+                                imgx.onload = function (imgThis) {
+                                    imgThis.sx = 96;
+                                    imgThis.sy = 0;
+                                    imgThis.swidth = 32;
+                                    imgThis.sheight = 62;
+                                    imgThis.x = canvas.width - 15 * (clickNumberStr.length - i);
+                                    imgThis.y = 0;
+                                    imgThis.width = numberW;
+                                    imgThis.height = numberH;
+                                    imgThis.show();
+                                };
+                                break;
+                            case "4":
+                                imgx = new CanvasImg('img/score.png');
+                                imgx.onload = function (imgThis) {
+                                    imgThis.sx = 128;
+                                    imgThis.sy = 0;
+                                    imgThis.swidth = 32;
+                                    imgThis.sheight = 62;
+                                    imgThis.x = canvas.width - 15 * (clickNumberStr.length - i);
+                                    imgThis.y = 0;
+                                    imgThis.width = numberW;
+                                    imgThis.height = numberH;
+                                    imgThis.show();
+                                };
+                                break;
+                            case "5":
+                                imgx = new CanvasImg('img/score.png');
+                                imgx.onload = function (imgThis) {
+                                    imgThis.sx = 160;
+                                    imgThis.sy = 0;
+                                    imgThis.swidth = 32;
+                                    imgThis.sheight = 62;
+                                    imgThis.x = canvas.width - 15 * (clickNumberStr.length - i);
+                                    imgThis.y = 0;
+                                    imgThis.width = numberW;
+                                    imgThis.height = numberH;
+                                    imgThis.show();
+                                };
+                                break;
+                            case "6":
+                                imgx = new CanvasImg('img/score.png');
+                                imgx.onload = function (imgThis) {
+                                    imgThis.sx = 192;
+                                    imgThis.sy = 0;
+                                    imgThis.swidth = 32;
+                                    imgThis.sheight = 62;
+                                    imgThis.x = canvas.width - 15 * (clickNumberStr.length - i);
+                                    imgThis.y = 0;
+                                    imgThis.width = numberW;
+                                    imgThis.height = numberH;
+                                    imgThis.show();
+                                };
+                                break;
+                            case "7":
+                                imgx = new CanvasImg('img/score.png');
+                                imgx.onload = function (imgThis) {
+                                    imgThis.sx = 224;
+                                    imgThis.sy = 0;
+                                    imgThis.swidth = 32;
+                                    imgThis.sheight = 62;
+                                    imgThis.x = canvas.width - 15 * (clickNumberStr.length - i);
+                                    imgThis.y = 0;
+                                    imgThis.width = numberW;
+                                    imgThis.height = numberH;
+                                    imgThis.show();
+                                };
+                                break;
+                            case "8":
+                                imgx = new CanvasImg('img/score.png');
+                                imgx.onload = function (imgThis) {
+                                    imgThis.sx = 256;
+                                    imgThis.sy = 0;
+                                    imgThis.swidth = 32;
+                                    imgThis.sheight = 62;
+                                    imgThis.x = canvas.width - 15 * (clickNumberStr.length - i);
+                                    imgThis.y = 0;
+                                    imgThis.width = numberW;
+                                    imgThis.height = numberH;
+                                    imgThis.show();
+                                };
+                                break;
+                            case "9":
+                                imgx = new CanvasImg('img/score.png');
+                                imgx.onload = function (imgThis) {
+                                    imgThis.sx = 288;
+                                    imgThis.sy = 0;
+                                    imgThis.swidth = 32;
+                                    imgThis.sheight = 62;
+                                    imgThis.x = canvas.width - 15 * (clickNumberStr.length - i);
+                                    imgThis.y = 0;
+                                    imgThis.width = numberW;
+                                    imgThis.height = numberH;
+                                    imgThis.show();
+                                };
+                                break;
+                        }
+                        if (imgx) {
+                            imgClickNumberList[i] = imgx
+                        }
+                    }
+                }
+            }
+            var timerId;
+            var timet = 60;
+            var state = 0;
+
+            var imgbutton1 = new CanvasImg('img/button1.png');
+            var imgbutton2 = new CanvasImg('img/button2.png');
+            var imgbutton3 = new CanvasImg('img/again.png');
+            imgbutton3.onload = function (imgThis) {
+                imgThis.sx = 0;
+                imgThis.sy = 0;
+                imgThis.swidth = 557;
+                imgThis.sheight = 166;
+                imgThis.x = canvas.width / 2 - 557 / 8;
+                imgThis.y = canvas.height / 2 - 166 / 8+100;
+                imgThis.width = 557 / 4;
+                imgThis.height = 166 / 4;
+                imgThis.onclick = function () {
+                    state = 0;
+                    imgTimetLiat = [];
+                    imgClickNumberList = [];
+                    clickNumber = 0;
+                    imgButton = imgbutton1;
+                }
+            }
+
+            imgbutton1.onload = function (imgThis) {
+                imgThis.sx = 0;
+                imgThis.sy = 0;
+                imgThis.swidth = 128;
+                imgThis.sheight = 128;
+                imgThis.x = canvas.width / 2 - 50;
+                imgThis.y = canvas.height / 2 - 50;
+                imgThis.width = 100;
+                imgThis.height = 100;
+                imgThis.enabled = true;
+                imgButton = imgThis;
+                imgThis.onmouseover = function () {
+                    imgButton = imgbutton2;
+                    imgbutton2.enabled = true;
+                };
+                imgThis.onmouseout = function () {
+                    //ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    //imgThis.show();
+
+                    imgButton = imgThis;
+                    imgThis.enabled = true;
+                }
+                imgThis.onclick = function (imgThis, event) {
+                    var e = event || window.event;
+                    setTest('(x:' + e.pageX + ',y:' + e.pageY + ')(x:' + e.layerX + ',y:' + e.layerY + ')')
+                    if (state === 0) {
+                        state = 1;
+                        imgButton = null;
+                        imgbutton1.enabled = false;
+                        imgbutton2.enabled = false;
+                        imgbutton3.enabled = false;
+                        clickNumber = 0;
+                        timet = 10;
+                        timerId = setInterval(function () {
+                            timet--;
+                            if (timet >= 0) {
+                                var timetStr = timet.toString();
+                                imgTimetLiat.length = timetStr.length;
+                                //==============================
+                                var numberW = 12, numberH = 25;
+                                for (let i = 0; i < timetStr.length; i++) {
+                                    let img;
+                                    switch (timetStr[i]) {
+                                        case "0":
+                                            img = new CanvasImg('img/score.png');
+                                            img.onload = function (imgThis) {
+                                                imgThis.sx = 0;
+                                                imgThis.sy = 0;
+                                                imgThis.swidth = 32;
+                                                imgThis.sheight = 62;
+                                                imgThis.x = 15 * i;
+                                                imgThis.y = 0;
+                                                imgThis.width = numberW;
+                                                imgThis.height = numberH;
+                                            };
+                                            break;
+                                        case "1":
+                                            img = new CanvasImg('img/score.png');
+                                            img.onload = function (imgThis) {
+                                                imgThis.sx = 32;
+                                                imgThis.sy = 0;
+                                                imgThis.swidth = 32;
+                                                imgThis.sheight = 62;
+                                                imgThis.x = 15 * i;
+                                                imgThis.y = 0;
+                                                imgThis.width = numberW;
+                                                imgThis.height = numberH;
+                                            };
+                                            break;
+                                        case "2":
+                                            img = new CanvasImg('img/score.png');
+                                            img.onload = function (imgThis) {
+                                                imgThis.sx = 64;
+                                                imgThis.sy = 0;
+                                                imgThis.swidth = 32;
+                                                imgThis.sheight = 62;
+                                                imgThis.x = 15 * i;
+                                                imgThis.y = 0;
+                                                imgThis.width = numberW;
+                                                imgThis.height = numberH;
+                                            };
+                                            break;
+                                        case "3":
+                                            img = new CanvasImg('img/score.png');
+                                            img.onload = function (imgThis) {
+                                                imgThis.sx = 96;
+                                                imgThis.sy = 0;
+                                                imgThis.swidth = 32;
+                                                imgThis.sheight = 62;
+                                                imgThis.x = 15 * i;
+                                                imgThis.y = 0;
+                                                imgThis.width = numberW;
+                                                imgThis.height = numberH;
+                                            };
+                                            break;
+                                        case "4":
+                                            img = new CanvasImg('img/score.png');
+                                            img.onload = function (imgThis) {
+                                                imgThis.sx = 128;
+                                                imgThis.sy = 0;
+                                                imgThis.swidth = 32;
+                                                imgThis.sheight = 62;
+                                                imgThis.x = 15 * i;
+                                                imgThis.y = 0;
+                                                imgThis.width = numberW;
+                                                imgThis.height = numberH;
+                                            };
+                                            break;
+                                        case "5":
+                                            img = new CanvasImg('img/score.png');
+                                            img.onload = function (imgThis) {
+                                                imgThis.sx = 160;
+                                                imgThis.sy = 0;
+                                                imgThis.swidth = 32;
+                                                imgThis.sheight = 62;
+                                                imgThis.x = 15 * i;
+                                                imgThis.y = 0;
+                                                imgThis.width = numberW;
+                                                imgThis.height = numberH;
+                                            };
+                                            break;
+                                        case "6":
+                                            img = new CanvasImg('img/score.png');
+                                            img.onload = function (imgThis) {
+                                                imgThis.sx = 192;
+                                                imgThis.sy = 0;
+                                                imgThis.swidth = 32;
+                                                imgThis.sheight = 62;
+                                                imgThis.x = 15 * i;
+                                                imgThis.y = 0;
+                                                imgThis.width = numberW;
+                                                imgThis.height = numberH;
+                                            };
+                                            break;
+                                        case "7":
+                                            img = new CanvasImg('img/score.png');
+                                            img.onload = function (imgThis) {
+                                                imgThis.sx = 224;
+                                                imgThis.sy = 0;
+                                                imgThis.swidth = 32;
+                                                imgThis.sheight = 62;
+                                                imgThis.x = 15 * i;
+                                                imgThis.y = 0;
+                                                imgThis.width = numberW;
+                                                imgThis.height = numberH;
+                                            };
+                                            break;
+                                        case "8":
+                                            img = new CanvasImg('img/score.png');
+                                            img.onload = function (imgThis) {
+                                                imgThis.sx = 256;
+                                                imgThis.sy = 0;
+                                                imgThis.swidth = 32;
+                                                imgThis.sheight = 62;
+                                                imgThis.x = 15 * i;
+                                                imgThis.y = 0;
+                                                imgThis.width = numberW;
+                                                imgThis.height = numberH;
+                                            };
+                                            break;
+                                        case "9":
+                                            img = new CanvasImg('img/score.png');
+                                            img.onload = function (imgThis) {
+                                                imgThis.sx = 288;
+                                                imgThis.sy = 0;
+                                                imgThis.swidth = 32;
+                                                imgThis.sheight = 62;
+                                                imgThis.x = 15 * i;
+                                                imgThis.y = 0;
+                                                imgThis.width = numberW;
+                                                imgThis.height = numberH;
+                                            };
+
+                                            break;
+                                    }
+                                    imgTimetLiat[i] = img
+                                }
+                            }
+                            else {
+                                clearInterval(timerId);
+                                state = 2;
+                                imgButton = imgbutton3;
+                            }
+                        }, 1000);
+                    }
+                    else {
+
+                    }
+
+
+                }
+                // canvas.onclick = function () {
+                //     var e = event || window.event;
+                //     //console.log(img)
+                //     if (e.layerX > img1.x && e.layerX < img1.width + img1.x && e.layerY > img1.y && e.layerY < img1.height + img1.y) {
+                //         setTest('(x:' + e.pageX + ',y:' + e.pageY + ')(x:' + e.layerX + ',y:' + e.layerY + ')')
+                //
+                //     }
+                // };
+            }
+            imgbutton2.onload = function (imgThis) {
+                imgThis.sx = 0;
+                imgThis.sy = 0;
+                imgThis.swidth = 128;
+                imgThis.sheight = 128;
+                imgThis.x = canvas.width / 2 - 50;
+                imgThis.y = canvas.height / 2 - 50;
+                imgThis.width = 100;
+                imgThis.height = 100;
+            }
+
+        };
+
+        setInterval(function () {
+            bg.show();
+            imgButton && imgButton.show();
+            for (var i = 0; i < imgTimetLiat.length; i++) {
+                imgTimetLiat[i].show()
+            }
+            for (var i = 0; i < imgClickNumberList.length; i++) {
+                imgClickNumberList[i].show()
+            }
+
+        }, 100)
+
+        for (var i = 0; i < 30; i++) {
+            var audio = document.createElement("audio");
+            audio.preload = "auto";
+            audio.src = 'mp3/get.mp3';
+            audio.addEventListener("canplaythrough", loadMp3);
+            // audio.id = "bgm";
+            // audio.loop = true;
+             //audio.volume = 0.8;
+
+            function loadMp3() {
+                this.removeEventListener("canplaythrough", loadMp3);
+                document.body.appendChild(this);
+            }
+            audioList.push(audio);
+        }
+
+
+        //======================================
+        function setTest(str) {
+            var span = document.getElementById('span');
+            span.innerHTML = str;
+        }
+    })();
+</script>
+</html>

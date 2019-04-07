@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+
+</head>
+<style>
+    * {
+        padding: 0;
+        margin: 0;
+    }
+</style>
+<body>
+<canvas id="canvas"></canvas>
+</body>
+<script>
+    (function () {
+        let canvas = document.querySelector("#canvas");
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        var ctx = canvas.getContext("2d");
+        var mouseX = 0, mouseY = 0;
+
+        var dotList = [];
+        this.lastWalkingTime = Date.now();
+
+        var img = new Image();
+        img.onload = function () {
+            init()
+        };
+
+        function Dot(centerX, centerY, radius, r, g, b, a) {
+            this.x = centerX;
+            this.y = centerY;
+            this.radius = radius;
+            this.color = "rgba(" + r + "," + g + "," + b + "," + a + ")";
+        }
+
+        function walk() {
+
+            let now = Date.now();
+            if (now - this.lastWalkingTime > 100) {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                for (var i = 0; i < dotList.length; i += 1) {
+                    curDot = dotList[i];
+                    var x = Math.abs(curDot.x - mouseX);
+                    var y = Math.abs(curDot.y - mouseY);
+                    var z = Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
+                    var cos = y / z;
+                    var radina = Math.acos(cos);//用反三角函数求弧度
+                    var angle = Math.floor(180 / (Math.PI / radina));//将弧度转换成角度
+
+                    var xx = curDot.x;
+                    var yy = curDot.y;
+                    if (z < 200) {
+                        //角度转弧度
+                        //var radian = (angle * Math.PI) / 180;
+
+                        //计算新坐标 r 就是两者的距离
+                        xx = curDot.x + (z / 14 - z % 7 - z / 2) * Math.sin(radina) * ((mouseX - curDot.x) < 0 ? 1 : -1);
+                        yy = curDot.y + (z / 14 - z % 7 - z / 2) * Math.cos(radina) * ((mouseY - curDot.y) < 0 ? 1 : -1);
+
+                    }
+                    ctx.save();
+                    ctx.fillStyle = curDot.color;
+                    ctx.beginPath();
+
+                    ctx.arc(xx, yy, curDot.radius, 0, 2 * Math.PI);
+                    ctx.fill();
+                    ctx.restore();
+
+                }
+
+
+                ctx.save();
+                ctx.fillStyle = 'rgba(0,255,255,.1)';
+                ctx.beginPath();
+                ctx.arc(mouseX, mouseY, 200, 0, 2 * Math.PI);
+                ctx.fill();
+                ctx.restore();
+
+                this.lastWalkingTime = now;
+            }
+            window.requestAnimationFrame(walk.bind(this));
+        }
+
+
+        function init() {
+            ctx.drawImage(img, 0, 0);
+            var imgData = ctx.getImageData(0, 0, img.width, img.height);
+            for (var x = 0; x < imgData.width; x += 6) {
+                for (var y = 0; y < imgData.height; y += 6) {
+
+                    var r = imgData.data[((imgData.width * y) + x) * 4 + 0];
+                    var g = imgData.data[((imgData.width * y) + x) * 4 + 1];
+                    var b = imgData.data[((imgData.width * y) + x) * 4 + 2];
+                    var a = imgData.data[((imgData.width * y) + x) * 4 + 3];
+
+                    if (a > 0) {
+                        var dot = new Dot(x, y, 2, r, g, b, a);
+                        dotList.push(dot);
+                    }
+                }
+            }
+            walk();
+            canvas.onmousemove = function (event) {
+                var e = event || window.event;
+                mouseX = e.layerX;
+                mouseY = e.layerY;
+            };
+            window.requestAnimationFrame(walk.bind(this));
+        }
+
+        // img.src = "img/1.jpg";
+        img.src = "img/atv.png";
+        // img.src = "img/甜甜圈.png";
+        // img.src = "img/开心果.png";
+
+    })()
+</script>
+</html>

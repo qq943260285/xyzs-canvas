@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<canvas id="dog-walking" style="position:fixed;left:0;bottom:0"></canvas>
+</body>
+<script>
+    (function () {
+        let canvas = document.querySelector("#dog-walking");
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        class DogAnimation {
+            constructor(canvas) {
+                // 存放加载后狗的图片
+                this.dogPictures = [];
+                // 图片目录
+                this.RES_PATH = "./img/dog";
+                this.IMG_COUNT = 7;
+
+                this.canvas = canvas;
+                this.ctx = canvas.getContext("2d");
+                // 记录上一帧的时间
+                this.lastWalkingTime = Date.now();
+                // 记录当前画的图片索引
+                this.keyFrameIndex = -1;
+                this.start();
+            }
+
+            async start() {
+                await this.loadResources();
+                // 给下一帧注册一个函数
+                window.requestAnimationFrame(this.walk.bind(this));
+            }
+
+            walk() {
+                // 绘制狗的图片，每过100ms就画一张
+                let now = Date.now();
+                if (now - this.lastWalkingTime >45) {
+                    // 先清掉上一次画的内容
+                    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                    // 获取下一张图片的索引
+                    let keyFrameIndex = ++this.keyFrameIndex % this.IMG_COUNT;
+                    let img = this.dogPictures[keyFrameIndex + 1];
+                    this.ctx.drawImage(img, 0, 0, img.naturalWidth, img.naturalHeight, 20, 20, img.naturalWidth / 2, img.naturalHeight / 2);
+                    this.lastWalkingTime = now;
+                }
+                // 继续给下一帧注册一个函数
+                window.requestAnimationFrame(this.walk.bind(this));
+            }
+
+            // 加载图片
+            loadResources() {
+                let imagesPath = [];
+                // 准备图片的src
+                for (let i = 0; i <= this.IMG_COUNT; i++) {
+                    imagesPath.push(`${this.RES_PATH}/${i}.jpg`);
+                }
+
+                let works = [];
+                imagesPath.forEach(imgPath => {
+                    // 图片加载完之后触发Promise的resolve
+                    works.push(new Promise(resolve => {
+                        let img = new Image();
+                        img.onload = () => resolve(img);
+                        img.src = imgPath;
+                    }));
+                });
+
+                return new Promise(resolve => {
+                    // 借助Promise.all知道了所有图片都加载好了
+                    Promise.all(works).then(dogPictures => {
+                        this.dogPictures = dogPictures;
+                        resolve();
+                    });
+                }); // 这里再套一个Promise是为了让调用者能够知道处理好了
+            }
+        }
+
+        new DogAnimation(canvas);
+
+
+    })()
+</script>
+</html>
