@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+    }
+
+    body, html {
+        height: 100%;
+        width: 100%;
+        /*background-color: rgba(0, 255, 255, 0.1);*/
+    }
+</style>
+<body>
+<canvas id="canvas"></canvas>
+</body>
+<script>
+    (function () {
+        var canvas = document.getElementById('canvas');
+        canvas.width = document.body.offsetWidth - 5;
+        canvas.height = document.body.offsetHeight - 5;
+        var ctx = canvas.getContext('2d');
+
+
+        function line(x1, y1, x2, y2, r, g, b, a) {
+            ctx.save();
+            ctx.beginPath();
+            ctx.moveTo(x1, y1);       //设置起点状态
+            ctx.lineTo(x2, y2);       //设置末端状态
+            ctx.lineWidth = 1;          //设置线宽状态
+            ctx.strokeStyle = "rgba(" + r + "," + g + "," + b + "," + a + ")";  //设置线的颜色状态
+            ctx.stroke();               //进行绘制
+            ctx.restore()
+        }
+
+
+        var Operating = function () {
+            this.x1 = 0;
+            this.y1 = 0;
+            this.x2 = 0;
+            this.y2 = 0;
+            this.x = 1;
+            this.y = 1;
+
+        }
+        // var o = new Operating();
+        var oArr = [new Operating(), new Operating(), new Operating(), new Operating(), new Operating()]
+
+        this.dateTimt = Date.now();
+
+        function drawFramw() {
+
+            for (var i = 0; i < oArr.length; i++) {
+
+                var o = oArr[i];
+                var n = Math.random() * 30;
+                var xn = o.x2 + o.x * n;
+                var yn = o.y2 + o.y * n;
+                let now = Date.now();
+                if (now - this.dateTimt > 100-n-n) {
+                    o.x = (Math.round(Math.random()) === 0 ? 1 : -1);
+                    o.y = (Math.round(Math.random()) === 0 ? 1 : -1);
+                    this.dateTimt = now;
+                }
+                if (xn >= 0 && xn <= canvas.width && yn >= 0 && yn <= canvas.height) {
+
+                    o.x1 = o.x2;
+                    o.y1 = o.y2;
+                    o.x2 = xn;
+                    o.y2 = yn;
+
+                    line(o.x1, o.y1, o.x2, o.y2, 100, 255, 255, 1);
+                }
+                oArr[i] = o;
+            }
+
+            window.requestAnimationFrame(drawFramw);
+        }
+
+        drawFramw()
+    })();
+
+</script>
+</html>
